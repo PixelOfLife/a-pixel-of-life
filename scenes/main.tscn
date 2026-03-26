@@ -1,9 +1,4 @@
-[gd_scene load_steps=3 format=3]
-
-[ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
-size = Vector2(16, 16)
+[gd_scene format=3]
 
 [node name="Main" type="Node2D"]
 
@@ -15,35 +10,25 @@ offset_right = 640.0
 offset_bottom = 360.0
 color = Color(0.1, 0.05, 0.15, 1)
 
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(320, 180)
-
-[node name="Player" type="CharacterBody2D" parent="."]
-position = Vector2(320, 180)
-script = ExtResource("1_player")
-
-[node name="Sprite" type="ColorRect" parent="Player"]
-offset_left = -8.0
-offset_top = -8.0
-offset_right = 8.0
-offset_bottom = 8.0
+[node name="Heart" type="ColorRect" parent="."]
+offset_left = 310.0
+offset_top = 170.0
+offset_right = 330.0
+offset_bottom = 190.0
 color = Color(1, 0.6, 0.8, 1)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
-shape = SubResource("RectangleShape2D_1")
+[node name="Label" type="Label" parent="."]
+offset_left = 240.0
+offset_top = 200.0
+offset_right = 400.0
+offset_bottom = 220.0
+text = "A Pixel of Life"
+horizontal_alignment = 1
 
-[node name="BPMLabel" type="Label" parent="."]
-offset_left = 10.0
-offset_top = 10.0
-offset_right = 200.0
-offset_bottom = 30.0
-text = "BPM: 120"
-horizontal_alignment = 0
-
-[node name="HintLabel" type="Label" parent="."]
-offset_left = 160.0
-offset_top = 330.0
-offset_right = 480.0
-offset_bottom = 350.0
-text = "Muevete con WASD o flechas"
+[node name="SubLabel" type="Label" parent="."]
+offset_left = 220.0
+offset_top = 225.0
+offset_right = 420.0
+offset_bottom = 245.0
+text = "Presiona ESPACIO para comenzar"
 horizontal_alignment = 1

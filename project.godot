@@ -59,7 +59,7 @@ physics/common/max_physics_steps_per_frame=4
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
-renderer/rendering_method="gl_compatibility"
+renderer/rendering_method="mobile"
 rendering/anti_aliasing/quality/msaa_2d=0
 rendering/anti_aliasing/quality/msaa_3d=0
 rendering/limits/time/time_rollover_secs=3600
