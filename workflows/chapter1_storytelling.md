@@ -12,6 +12,8 @@
 **Acción:** Nada. Solo oscuridad. El jugador no sabe qué está pasando.
 **Efecto:** Crea intriga. "¿Dónde estoy? ¿Qué soy?"
 
+> *"¿Cuál es el sonido del silencio? No lo sabemos... pero podemos saber... cuál es el sonido... del comienzo de la vida..."*
+
 > *"Antes de la luz... antes del color... antes de todo... había un sonido."*
 
 ### Escena 2: El Primer Latido (1:00 - 2:00)
