@@ -1,0 +1,28 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+/export/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Sensitive files
+.env
+credentials.json
+token.json
+
+# Temporary files
+.tmp/
+
+# Build outputs
+*.zip
+*.dmg
+*.exe
+*.aab
+*.apk
