@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://b5em511dl5jjw"]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" uid="uid://t44aovm7qqws" path="res://scenes/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scenes/main.gd" id="1_main"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cell_idle_01.png" id="2_cell"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -11,35 +12,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 offset_right = 640.0
 offset_bottom = 360.0
-color = Color(0.02, 0.01, 0.05, 1)
+color = Color(0.02, 0.02, 0.06, 1)
 
 [node name="RippleContainer" type="Node2D" parent="."]
 position = Vector2(320, 180)
 
-[node name="PulseRing" type="ColorRect" parent="."]
-offset_left = 318.0
-offset_top = 178.0
-offset_right = 322.0
-offset_bottom = 182.0
-pivot_offset = Vector2(2, 2)
-color = Color(1, 0.6, 0.8, 0.3)
-
-[node name="Cell" type="ColorRect" parent="."]
-offset_left = 316.0
-offset_top = 176.0
-offset_right = 324.0
-offset_bottom = 184.0
-pivot_offset = Vector2(4, 4)
-color = Color(1, 0.85, 0.9, 1)
-
-[node name="Glow" type="ColorRect" parent="Cell"]
-layout_mode = 0
-offset_left = -8.0
-offset_top = -8.0
-offset_right = 16.0
-offset_bottom = 16.0
-pivot_offset = Vector2(12, 12)
-color = Color(1, 0.6, 0.8, 0.15)
+[node name="Cell" type="Sprite2D" parent="."]
+texture = ExtResource("2_cell")
+modulate = Color(0.3, 0.35, 0.4, 1)
 
 [node name="DialogueLabel" type="Label" parent="."]
 offset_left = 120.0
@@ -48,6 +28,7 @@ offset_right = 520.0
 offset_bottom = 200.0
 horizontal_alignment = 1
 vertical_alignment = 1
+modulate = Color(0.7, 0.7, 0.75, 1)
 
 [node name="VoicePlayer" type="AudioStreamPlayer" parent="."]
 volume_db = -3.0

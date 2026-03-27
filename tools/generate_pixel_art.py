@@ -13,16 +13,25 @@ OUTPUT_DIR = "assets/sprites"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 PALETTE = {
-    "bg_dark": (26, 10, 46),        # Púrpura oscuro (#1a0a2e)
-    "bg_medium": (51, 17, 85),     # Púrpura medio (#331155)
-    "cell_glow": (255, 204, 238),   # Rosa muy claro (#ffcc ee)
-    "cell_membrane": (255, 153, 204), # Rosa suave (#ff99cc)
-    "cell_body": (255, 102, 170),   # Rosa intenso (#ff66aa)
-    "nucleus": (255, 245, 238),     # Blanco cálido (#fff5ee)
-    "nucleus_glow": (255, 230, 240), # Blanco rosa
-    "calm_blue": (153, 204, 255),   # Azul suave (#99ccff)
-    "joy_gold": (255, 204, 102),    # Dorado (#ffcc66)
-    "distress_red": (204, 51, 51),  # Rojo tenue (#cc3333)
+    # Fondo: negro absoluto a azul muy oscuro
+    "bg_darkest": (5, 5, 15),          # Casi negro absoluto
+    "bg_dark": (15, 20, 35),           # Azul muy oscuro
+    "bg_medium": (25, 35, 55),         # Azul oscuro medio
+    
+    # Célula: sombras grises a blancos (sensación de luz tenue)
+    "cell_shadow": (40, 45, 55),        # Gris oscuro
+    "cell_mid": (80, 90, 100),          # Gris medio
+    "cell_light": (150, 160, 170),      # Gris claro
+    "cell_bright": (220, 225, 235),     # Casi blanco
+    
+    # Núcleo: único punto de luz (blanco puro)
+    "nucleus": (255, 255, 255),          # Blanco puro
+    "nucleus_glow": (200, 210, 220),    # Blanco azulado
+    
+    # Emociones (minimalismo):
+    "calm_blue": (60, 80, 120),         # Azul frío (calma)
+    "warm_hint": (180, 140, 100),       # Sombra cálida mínima (alegría)
+    "tense_red": (80, 50, 50),          #Rojo oscuro mínimo (tensión)
 }
 
 def save_sprite(data, filename, size=(16, 16)):
@@ -52,48 +61,45 @@ def save_sprite(data, filename, size=(16, 16)):
     print(f"Generated: {filepath}")
 
 def generate_cell_idle():
-    """Generates 4-frame breathing animation for the cell"""
+    """Generates 4-frame breathing animation for the cell - dark/grayscale"""
     frames = []
-    sizes = [12, 14, 16, 14]  # Breathing pattern
+    sizes = [10, 12, 14, 12]  # Breathing pattern - más sutil
     
     for i, size in enumerate(sizes):
         data = [["transparent" for _ in range(16)] for _ in range(16)]
         center = 8
         
-        # Draw glow (outer)
-        for dy in range(-size//2 - 2, size//2 + 2):
-            for dx in range(-size//2 - 2, size//2 + 2):
+        # Draw glow (outer - muy sutil)
+        for dy in range(-size//2 - 3, size//2 + 3):
+            for dx in range(-size//2 - 3, size//2 + 3):
                 dist = (dx**2 + dy**2) ** 0.5
-                if dist <= size/2 + 1:
-                    alpha = max(0, 80 - int(dist * 15))
-                    if (center+dx, center+dy) in [(x,y) for y in range(16) for x in range(16)]:
-                        if 0 <= center+dx < 16 and 0 <= center+dy < 16:
-                            if dist < size/2 - 1:
-                                data[center+dy][center+dx] = PALETTE["cell_glow"]
-                            else:
-                                data[center+dy][center+dx] = (*PALETTE["cell_glow"][:3], alpha)
+                if dist <= size/2 + 2:
+                    alpha = max(0, 40 - int(dist * 12))
+                    if 0 <= center+dx < 16 and 0 <= center+dy < 16:
+                        if dist > size/2:
+                            # Solo el borde más externo - gris muy oscuro
+                            data[center+dy][center+dx] = (*PALETTE["cell_shadow"][:3], alpha)
         
-        # Draw membrane
+        # Draw membrane (gris medio)
         for dy in range(-size//2, size//2):
             for dx in range(-size//2, size//2):
                 dist = (dx**2 + dy**2) ** 0.5
                 if dist <= size/2 and 0 <= center+dx < 16 and 0 <= center+dy < 16:
                     if dist > size/2 - 2:
-                        data[center+dy][center+dx] = PALETTE["cell_membrane"]
+                        data[center+dy][center+dx] = PALETTE["cell_mid"]
         
-        # Draw body
+        # Draw body (gris claro)
         for dy in range(-size//2 + 1, size//2 - 1):
             for dx in range(-size//2 + 1, size//2 - 1):
                 dist = (dx**2 + dy**2) ** 0.5
                 if dist <= size/2 - 2 and 0 <= center+dx < 16 and 0 <= center+dy < 16:
-                    data[center+dy][center+dx] = PALETTE["cell_body"]
+                    data[center+dy][center+dx] = PALETTE["cell_light"]
         
-        # Draw nucleus
-        nuc_size = 4 if i % 2 == 0 else 5
+        # Draw nucleus (único punto blanco - la "luz" dentro de la oscuridad)
+        nuc_size = 2
         for dy in range(-nuc_size//2, nuc_size//2):
             for dx in range(-nuc_size//2, nuc_size//2):
-                dist = (dx**2 + dy**2) ** 0.5
-                if dist <= nuc_size/2 and 0 <= center+dx < 16 and 0 <= center+dy < 16:
+                if 0 <= center+dx < 16 and 0 <= center+dy < 16:
                     data[center+dy][center+dx] = PALETTE["nucleus"]
         
         frames.append(data)
@@ -103,13 +109,13 @@ def generate_cell_idle():
 
 def generate_cell_appear():
     """6-frame appear animation (grow from nothing)"""
-    sizes = [2, 4, 8, 12, 14, 16]
+    sizes = [2, 4, 8, 10, 12, 14]  # Más sutil
     
     for i, size in enumerate(sizes):
         data = [["transparent" for _ in range(16)] for _ in range(16)]
         center = 8
         
-        # Scaled-down cell
+        # Scaled-down cell - grayscale
         scale = size / 16
         for dy in range(-7, 8):
             for dx in range(-7, 8):
@@ -120,66 +126,65 @@ def generate_cell_appear():
                     if dist < 7:
                         if dist < 2:
                             data[center+dy][center+dx] = PALETTE["nucleus"]
-                        elif dist < 5:
-                            data[center+dy][center+dx] = PALETTE["cell_body"]
+                        elif dist < 4:
+                            data[center+dy][center+dx] = PALETTE["cell_light"]
                         else:
-                            data[center+dy][center+dx] = PALETTE["cell_membrane"]
+                            data[center+dy][center+dx] = PALETTE["cell_mid"]
         
         save_sprite(data, f"cell_appear_{i+1:02d}.png")
 
 def generate_cell_dissolve():
     """8-frame dissolve animation (expand and fade)"""
     sizes = [16, 20, 24, 28, 32, 36, 40, 44]
-    alphas = [255, 200, 160, 120, 90, 60, 40, 20]
+    alphas = [200, 160, 130, 100, 80, 60, 40, 25]
     
     for i, (size, alpha) in enumerate(zip(sizes, alphas)):
         data = [["transparent" for _ in range(48)] for _ in range(48)]
         center = 24
         
-        # Draw dissolving ring
+        # Draw dissolving ring - gris oscuro
         for dy in range(-size//2, size//2):
             for dx in range(-size//2, size//2):
                 dist = (dx**2 + dy**2) ** 0.5
                 if dist <= size/2 and 0 <= center+dx < 48 and 0 <= center+dy < 48:
                     if dist > size/2 - 3:
-                        color = (*PALETTE["cell_glow"][:3], alpha)
+                        color = (*PALETTE["cell_mid"][:3], alpha)
                         data[center+dy][center+dx] = color
                     else:
-                        color = (*PALETTE["cell_body"][:3], alpha)
+                        color = (*PALETTE["cell_light"][:3], alpha)
                         data[center+dy][center+dx] = color
         
         save_sprite(data, f"cell_dissolve_{i+1:02d}.png", (48, 48))
 
 def generate_heartbeat_ring():
-    """3-frame pulse ring (concentric circles)"""
-    sizes = [4, 20, 40]
-    colors = [PALETTE["cell_body"], PALETTE["cell_membrane"], PALETTE["cell_glow"]]
+    """3-frame pulse ring - oscuro/grises"""
+    sizes = [3, 16, 32]
+    colors = [PALETTE["cell_light"], PALETTE["cell_mid"], PALETTE["cell_shadow"]]
     
     for i, (size, color) in enumerate(zip(sizes, colors)):
         data = [["transparent" for _ in range(48)] for _ in range(48)]
         center = 24
         
-        # Draw ring
-        thickness = 2 if i == 0 else 3
+        # Draw ring - más sutil que antes
+        thickness = 2 if i == 0 else 2
         for dy in range(-size//2, size//2):
             for dx in range(-size//2, size//2):
                 dist = (dx**2 + dy**2) ** 0.5
                 if 0 <= center+dx < 48 and 0 <= center+dy < 48:
                     if abs(dist - size/2) < thickness:
-                        # Edge alpha based on distance from center
-                        alpha = max(40, 180 - int(dist * 2))
+                        # Alpha más bajo para que sea sutil
+                        alpha = max(30, 100 - int(dist))
                         data[center+dy][center+dx] = (*color[:3], alpha)
         
         save_sprite(data, f"heartbeat_ring_{i+1:02d}.png", (48, 48))
 
 def generate_particles():
-    """Generate particle variants"""
+    """Generate particle variants - casi invisibles"""
     particles = [
-        ((3, 3), PALETTE["nucleus"]),  # Large glow
-        ((2, 2), PALETTE["cell_glow"]),  # Medium
-        ((1, 1), (255, 255, 255)),  # Small white
-        ((2, 1), PALETTE["calm_blue"]),  # Horizontal
-        ((1, 2), PALETTE["calm_blue"]),  # Vertical
+        ((2, 2), PALETTE["cell_bright"]),  # Pequeño punto blanco
+        ((1, 1), PALETTE["cell_light"]),   # Gris claro mínimo
+        ((1, 1), (255, 255, 255)),         # Un punto blanco
+        ((1, 1), PALETTE["calm_blue"]),    # Azul frío mínimo
     ]
     
     for i, ((w, h), color) in enumerate(particles):
@@ -187,23 +192,23 @@ def generate_particles():
         for dy in range(h):
             for dx in range(w):
                 if dx < 4 and dy < 4:
-                    data[dy][dx] = color
+                    data[dy][dx] = (*color[:3], 180)  # Slightly transparent
         save_sprite(data, f"particle_{i+1:02d}.png", (4, 4))
 
 def generate_background_tile():
-    """Generate subtle background tile with gradient"""
-    data = [[PALETTE["bg_dark"] for _ in range(32)] for _ in range(32)]
+    """Generate subtle background tile - muy oscuro"""
+    data = [[PALETTE["bg_darkest"] for _ in range(32)] for _ in range(32)]
     
-    # Add subtle noise/gradient
+    # Add casi imperceptible de gradiente
     for y in range(32):
         for x in range(32):
+            # Gradiente muy sutil de centro
             dist = ((x-16)**2 + (y-16)**2) ** 0.5
-            if dist < 20:
-                # Add some variation
-                noise = random.randint(-10, 10)
-                r = max(0, min(255, PALETTE["bg_dark"][0] + noise))
-                g = max(0, min(255, PALETTE["bg_dark"][1] + noise))
-                b = max(0, min(255, PALETTE["bg_dark"][2] + noise))
+            if dist < 15:
+                noise = random.randint(-5, 5)
+                r = max(0, min(255, PALETTE["bg_darkest"][0] + noise))
+                g = max(0, min(255, PALETTE["bg_darkest"][1] + noise))
+                b = max(0, min(255, PALETTE["bg_darkest"][2] + noise))
                 data[y][x] = (r, g, b)
     
     save_sprite(data, "bg_tile.png", (32, 32))
