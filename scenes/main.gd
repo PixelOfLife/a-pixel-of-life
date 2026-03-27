@@ -109,7 +109,7 @@ func _spawn_ripple():
 	ripple.offset_right = 2
 	ripple.offset_bottom = 2
 	ripple.pivot_offset = Vector2(2, 2)
-	ripple.position = Vector2(320, 180)
+	ripple.position = Vector2(0, 0)
 	ripple_container.add_child(ripple)
 	
 	# Animación de expansión delicada
