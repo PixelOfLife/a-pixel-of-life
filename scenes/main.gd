@@ -41,10 +41,9 @@ func _ready():
 	_start_dialogue()
 
 func _setup_reverb():
+	# Reverb simple sin parámetros complejos
 	var reverb = AudioEffectReverb.new()
-	reverb.wet = 0.3
-	reverb.damping = 0.5
-	reverb.filter_lowcut = 200
+	reverb.wet = 0.25
 	
 	var bus_idx = AudioServer.get_bus_index("Master")
 	AudioServer.add_bus_effect(bus_idx, reverb, 0)
