@@ -1,8 +1,10 @@
-from gtts import gTTS
+import asyncio
+import edge_tts
 import os
 
-output_dir = "assets/audio/voice"
-os.makedirs(output_dir, exist_ok=True)
+VOICE = "es-AR-ElenaNeural"
+OUTPUT_DIR = "assets/audio/voice"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 voice_lines = {
     "intro_01": "¿Cuál es el sonido del silencio?",
@@ -22,10 +24,13 @@ voice_lines = {
     "hint_04": "el ritmo te guía...",
 }
 
-for name, text in voice_lines.items():
-    tts = gTTS(text=text, lang='es', slow=True)
-    filepath = os.path.join(output_dir, f"{name}.mp3")
-    tts.save(filepath)
-    print(f"Generated: {filepath}")
+async def generate_all():
+    for name, text in voice_lines.items():
+        filepath = os.path.join(OUTPUT_DIR, f"{name}.mp3")
+        # Rate -20% for slower, calmer delivery
+        communicate = edge_tts.Communicate(text, VOICE, rate="-15%", pitch="-5Hz")
+        await communicate.save(filepath)
+        print(f"Generated: {filepath}")
+    print(f"\nTotal: {len(voice_lines)} files with voice {VOICE}")
 
-print(f"\nTotal: {len(voice_lines)} voice files generated.")
+asyncio.run(generate_all())

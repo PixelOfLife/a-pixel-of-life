@@ -1,7 +1,7 @@
 extends Node2D
 
 ## Escena de Apertura - "A Pixel of Life"
-## Célula que respira → Diálogo con voz → Latido como gota en estanque
+## Célula → Diálogo con voz argentina → Heartbeat interactivo
 
 # --- Referencias ---
 @onready var cell = $Cell
@@ -9,10 +9,9 @@ extends Node2D
 @onready var label = $DialogueLabel
 @onready var ripple_container = $RippleContainer
 @onready var voice_player = $VoicePlayer
-@onready var heartbeat_player = $HeartbeatPlayer
-@onready var ripple_player = $RipplePlayer
+@onready var pulse_ring = $PulseRing
 
-# --- Diálogo con voces ---
+# --- Diálogo ---
 var dialogue_data = [
 	{"text": "¿Cuál es el sonido del silencio?", "voice": "res://assets/audio/voice/intro_01.mp3"},
 	{"text": "No lo sabemos...", "voice": "res://assets/audio/voice/intro_02.mp3"},
@@ -21,28 +20,25 @@ var dialogue_data = [
 	{"text": "del comienzo de la vida...", "voice": "res://assets/audio/voice/intro_05.mp3"},
 ]
 
-var hint_texts = [
-	"siente...",
-	"escucha...",
-	"presta atención...",
-	"el ritmo te guía...",
-]
+var hint_texts = ["siente...", "escucha...", "presta atención...", "el ritmo te guía...", "responde..."]
 
 # --- Estado ---
-var phase = "init"  # init → cell → dialogue → dissolve → heartbeat
+var phase = "init"
 var heartbeat_timer = 0.0
-var heartbeat_interval = 1.0  # 60 BPM
+var heartbeat_interval = 1.0
 var ripple_count = 0
 var hint_timer = 0.0
 var hint_interval = 5.0
 var current_hint = 0
+var interaction_count = 0
+var beat_count = 0
 
 func _ready():
 	label.modulate.a = 0.0
 	cell.modulate.a = 0.0
 	cell_glow.modulate.a = 0.0
+	pulse_ring.modulate.a = 0.0
 	
-	# Iniciar secuencia
 	await get_tree().create_timer(2.0).timeout
 	phase = "cell"
 	_fade_in_cell()
@@ -63,51 +59,45 @@ func _process(delta):
 		heartbeat_timer += delta
 		if heartbeat_timer >= heartbeat_interval:
 			heartbeat_timer -= heartbeat_interval
-			_spawn_ripple()
-			_play_heartbeat_sound()
+			_beat()
 		
-		# Hint cada 5 segundos
+		# Hint cada 5 seg
 		hint_timer += delta
 		if hint_timer >= hint_interval:
 			hint_timer = 0.0
 			_show_hint()
 
+func _unhandled_input(event):
+	if phase == "heartbeat" and event.is_action_pressed("ui_accept"):
+		_on_player_interaction()
+
 func _fade_in_cell():
 	var tween = create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(cell, "modulate:a", 1.0, 2.0).set_ease(Tween.EASE_OUT)
-	tween.tween_property(cell_glow, "modulate:a", 0.3, 2.0).set_ease(Tween.EASE_OUT)
+	tween.tween_property(cell, "modulate:a", 1.0, 2.0)
+	tween.tween_property(cell_glow, "modulate:a", 0.3, 2.0)
 	tween.tween_property(cell, "scale", Vector2(1.0, 1.0), 2.0).from(Vector2(0.0, 0.0))
 
 func _start_dialogue():
 	for line in dialogue_data:
-		# Reproducir voz
 		_play_voice(line["voice"])
-		
-		# Mostrar texto
 		_show_line(line["text"])
-		
-		# Esperar a que termine la voz + pausa
 		await get_tree().create_timer(3.5).timeout
 		_hide_line()
 		await get_tree().create_timer(0.5).timeout
 	
-	# Transición al heartbeat
 	await get_tree().create_timer(1.0).timeout
 	phase = "dissolve"
 	_dissolve_cell()
-	
 	await get_tree().create_timer(2.0).timeout
 	phase = "heartbeat"
 	_start_heartbeat()
 
 func _play_voice(path: String):
 	if ResourceLoader.exists(path):
-		var stream = load(path)
-		if stream:
-			voice_player.stream = stream
-			voice_player.volume_db = -5.0
-			voice_player.play()
+		voice_player.stream = load(path)
+		voice_player.volume_db = -3.0
+		voice_player.play()
 
 func _show_line(text: String):
 	label.text = text
@@ -122,60 +112,106 @@ func _dissolve_cell():
 	var tween = create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(cell, "scale", Vector2(4.0, 4.0), 1.5).set_ease(Tween.EASE_OUT)
-	tween.tween_property(cell, "modulate:a", 0.0, 1.5).set_ease(Tween.EASE_IN)
+	tween.tween_property(cell, "modulate:a", 0.0, 1.5)
 	tween.tween_property(cell_glow, "scale", Vector2(6.0, 6.0), 1.5).set_ease(Tween.EASE_OUT)
-	tween.tween_property(cell_glow, "modulate:a", 0.0, 1.5).set_ease(Tween.EASE_IN)
-	
-	# Sonido de disolución (onda baja)
-	_play_dissolve_sound()
+	tween.tween_property(cell_glow, "modulate:a", 0.0, 1.5)
 
 func _start_heartbeat():
 	cell.visible = false
 	cell_glow.visible = false
-	
-	# Primer hint
-	await get_tree().create_timer(2.0).timeout
+	await get_tree().create_timer(1.5).timeout
 	_show_hint()
 
-func _spawn_ripple():
-	ripple_count += 1
+func _beat():
+	beat_count += 1
 	
-	var ripple = ColorRect.new()
-	ripple.color = Color(1.0, 0.6, 0.8, 0.35)
-	ripple.offset_left = -2
-	ripple.offset_top = -2
-	ripple.offset_right = 2
-	ripple.offset_bottom = 2
-	ripple.pivot_offset = Vector2(2, 2)
-	ripple.position = Vector2(-2, -2)
-	ripple_container.add_child(ripple)
+	# Anillo de pulso que se expande desde el centro
+	var ring = ColorRect.new()
+	ring.color = Color(1.0, 0.6, 0.8, 0.5)
+	ring.offset_left = -3
+	ring.offset_top = -3
+	ring.offset_right = 3
+	ring.offset_bottom = 3
+	ring.pivot_offset = Vector2(3, 3)
+	ring.position = Vector2(-3, -3)
+	ripple_container.add_child(ring)
 	
-	var duration = 3.5
-	var max_size = 100.0 + (ripple_count * 8)
+	# Anillo externo más grande y sutil
+	var ring_outer = ColorRect.new()
+	ring_outer.color = Color(1.0, 0.6, 0.8, 0.2)
+	ring_outer.offset_left = -2
+	ring_outer.offset_top = -2
+	ring_outer.offset_right = 2
+	ring_outer.offset_bottom = 2
+	ring_outer.pivot_offset = Vector2(2, 2)
+	ring_outer.position = Vector2(-2, -2)
+	ripple_container.add_child(ring_outer)
+	
+	# Animación del anillo principal
+	var size_inner = 80.0
+	var tween1 = create_tween()
+	tween1.set_parallel(true)
+	tween1.tween_property(ring, "scale", Vector2(size_inner, size_inner), 2.5).set_ease(Tween.EASE_OUT)
+	tween1.tween_property(ring, "modulate:a", 0.0, 2.5).set_ease(Tween.EASE_IN)
+	
+	# Animación del anillo externo
+	var size_outer = 140.0
+	var tween2 = create_tween()
+	tween2.set_parallel(true)
+	tween2.tween_property(ring_outer, "scale", Vector2(size_outer, size_outer), 3.0).set_ease(Tween.EASE_OUT)
+	tween2.tween_property(ring_outer, "modulate:a", 0.0, 3.0).set_ease(Tween.EASE_IN)
+	
+	# Cleanup
+	tween1.finished.connect(ring.queue_free)
+	tween2.finished.connect(ring_outer.queue_free)
+	
+	# Sonido heartbeat
+	_play_heartbeat_sound()
+
+func _on_player_interaction():
+	interaction_count += 1
+	
+	# Pulso visual extra cuando el jugador interactúa
+	var pulse = ColorRect.new()
+	pulse.color = Color(1.0, 0.8, 0.9, 0.6)
+	pulse.offset_left = -5
+	pulse.offset_top = -5
+	pulse.offset_right = 5
+	pulse.offset_bottom = 5
+	pulse.pivot_offset = Vector2(5, 5)
+	pulse.position = Vector2(-5, -5)
+	ripple_container.add_child(pulse)
 	
 	var tween = create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(ripple, "scale", Vector2(max_size, max_size), duration).set_ease(Tween.EASE_OUT)
-	tween.tween_property(ripple, "modulate:a", 0.0, duration).set_ease(Tween.EASE_IN)
+	tween.tween_property(pulse, "scale", Vector2(60, 60), 1.5).set_ease(Tween.EASE_OUT)
+	tween.tween_property(pulse, "modulate:a", 0.0, 1.5)
+	tween.finished.connect(pulse.queue_free)
 	
-	await tween.finished
-	ripple.queue_free()
+	# Feedback de texto
+	if interaction_count == 1:
+		_show_temp_text("sientes...", 2.0)
+	elif interaction_count == 3:
+		_show_temp_text("bien...", 2.0)
+	elif interaction_count == 5:
+		_show_temp_text("sigue...", 2.0)
+
+func _show_temp_text(text: String, duration: float):
+	label.text = text
+	label.modulate.a = 0.0
+	var tween = create_tween()
+	tween.tween_property(label, "modulate:a", 0.6, 0.5)
+	tween.tween_interval(duration)
+	tween.tween_property(label, "modulate:a", 0.0, 0.5)
 
 func _play_heartbeat_sound():
-	# Generar sonido procedural "lub-dub" usando AudioStreamPlayer
-	# Dos tonos cortos: grave + agudo
-	var lub = _create_tone_player(55, 0.1, 0.3)
+	var lub = _make_tone(55, 0.1, 0.25)
 	lub.play()
 	await get_tree().create_timer(0.12).timeout
-	var dub = _create_tone_player(70, 0.08, 0.2)
+	var dub = _make_tone(70, 0.08, 0.15)
 	dub.play()
 
-func _play_dissolve_sound():
-	# Onda grave larga
-	var dissolve = _create_tone_player(40, 0.8, 0.15)
-	dissolve.play()
-
-func _create_tone_player(freq: float, duration: float, volume: float) -> AudioStreamPlayer:
+func _make_tone(freq: float, duration: float, volume: float) -> AudioStreamPlayer:
 	var player = AudioStreamPlayer.new()
 	var stream = AudioStreamGenerator.new()
 	stream.mix_rate = 11025.0
@@ -183,40 +219,29 @@ func _create_tone_player(freq: float, duration: float, volume: float) -> AudioSt
 	player.stream = stream
 	player.volume_db = linear_to_db(volume)
 	add_child(player)
-	
-	# Generar el tono
 	player.play()
+	
 	var playback = player.get_stream_playback()
 	var samples = int(11025.0 * duration)
-	var phase_val = 0.0
-	
+	var p = 0.0
 	for i in range(samples):
 		var t = float(i) / float(samples)
-		var envelope = 1.0
-		if t < 0.05:
-			envelope = t / 0.05
-		elif t > 0.6:
-			envelope = (1.0 - t) / 0.4
-		envelope = clampf(envelope, 0.0, 1.0)
-		
-		var sample = sin(phase_val * TAU) * envelope
-		phase_val += freq / 11025.0
-		if phase_val >= 1.0:
-			phase_val -= 1.0
-		playback.push_frame(Vector2(sample, sample))
+		var env = 1.0
+		if t < 0.05: env = t / 0.05
+		elif t > 0.6: env = (1.0 - t) / 0.4
+		env = clampf(env, 0.0, 1.0)
+		playback.push_frame(Vector2(sin(p * TAU) * env, sin(p * TAU) * env))
+		p += freq / 11025.0
+		if p >= 1.0: p -= 1.0
 	
-	# Auto-remover después de reproducir
 	player.finished.connect(func(): player.queue_free())
-	
 	return player
 
 func _show_hint():
 	var text = hint_texts[current_hint % hint_texts.size()]
 	current_hint += 1
-	
 	label.text = text
 	label.modulate.a = 0.0
-	
 	var tween = create_tween()
 	tween.tween_property(label, "modulate:a", 0.4, 0.8)
 	tween.tween_interval(3.0)

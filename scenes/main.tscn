@@ -16,6 +16,14 @@ color = Color(0.02, 0.01, 0.05, 1)
 [node name="RippleContainer" type="Node2D" parent="."]
 position = Vector2(320, 180)
 
+[node name="PulseRing" type="ColorRect" parent="."]
+offset_left = 318.0
+offset_top = 178.0
+offset_right = 322.0
+offset_bottom = 182.0
+pivot_offset = Vector2(2, 2)
+color = Color(1, 0.6, 0.8, 0.3)
+
 [node name="Cell" type="ColorRect" parent="."]
 offset_left = 316.0
 offset_top = 176.0
@@ -42,8 +50,4 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="VoicePlayer" type="AudioStreamPlayer" parent="."]
-volume_db = -5.0
-
-[node name="HeartbeatPlayer" type="AudioStreamPlayer" parent="."]
-
-[node name="RipplePlayer" type="AudioStreamPlayer" parent="."]
+volume_db = -3.0
