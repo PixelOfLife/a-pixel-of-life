@@ -42,14 +42,13 @@ func _ready():
 
 func _setup_reverb():
 	var reverb = AudioEffectReverb.new()
-	reverb.pre_delay = 0.2
-	reverb.wet = 0.4
-	reverb.damping = 0.6
-	reverb.filter_cutoff = 400
+	reverb.wet = 0.3
+	reverb.damping = 0.5
+	reverb.filter_lowcut = 200
 	
 	var bus_idx = AudioServer.get_bus_index("Master")
 	AudioServer.add_bus_effect(bus_idx, reverb, 0)
-	AudioServer.set_bus_volume_db(bus_idx, -3.0)
+	AudioServer.set_bus_volume_db(bus_idx, -2.0)
 
 func _process(delta):
 	if phase == "cell" or phase == "dialogue":
