@@ -1,19 +1,21 @@
 # Visual Design Guide: "A Pixel of Life"
 
 ## Estilo Visual General
-**Bioluminescent Pixel Art** - orgánico, etéreo, delicado.
+**Womb Darkness** - El sentido de la vista NO está desarrollado. Todo es negro, gris, sombra. La唯一 luz es el núcleo de la célula. El sonido es el protagonista.
 
-### Paleta de Colores
+### Paleta de Colores (Oscura/Gris)
 | Color | Hex | Uso |
 |---|---|---|
-| Rosa suave | #ff99cc | Célula, latido, vida |
-| Rosa claro | #ffccee | Glow, aura de la célula |
-| Púrpura oscuro | #1a0a2e | Fondo (espacio interior) |
-| Púrpura medio | #331155 | Sombras, profundidad |
-| Blanco cálido | #fff5ee | Brillo, momentos clave |
-| Azul suave | #99ccff | Calma, vibraciones suaves |
-| Dorado sutil | #ffcc66 | Alegría, momentos felices |
-| Rojo tenue | #cc3333 | Angustia, momentos tensos |
+| Negro absoluto | #05050f | Fondo base |
+| Azul muy oscuro | #0f1423 | Fondo gradiente |
+| Gris oscuro | #282d37 | Sombra de célula |
+| Gris medio | #505a64 | Membrana |
+| Gris claro | #96a0aa | Cuerpo de célula |
+| Blanco suave | #dce1eb | Borde/light |
+| Blanco puro | #ffffff | Núcleo (único punto de luz) |
+| Azul frío | #3c5078 | Emociones calmar |
+| Sombra cálida | #b48c64 | Emociones positivas (mínimo) |
+| Rojo oscuro | #503232 | Emociones tensas (mínimo) |
 
 ---
 
