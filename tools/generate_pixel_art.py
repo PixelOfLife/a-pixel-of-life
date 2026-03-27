@@ -61,46 +61,72 @@ def save_sprite(data, filename, size=(16, 16)):
     print(f"Generated: {filepath}")
 
 def generate_cell_idle():
-    """Generates 4-frame breathing animation for the cell - dark/grayscale"""
+    """Generates 4-frame breathing animation for the cell - circular, deep underwater feel"""
     frames = []
-    sizes = [10, 12, 14, 12]  # Breathing pattern - más sutil
+    sizes = [10, 12, 14, 12]  
     
     for i, size in enumerate(sizes):
         data = [["transparent" for _ in range(16)] for _ in range(16)]
         center = 8
         
-        # Draw glow (outer - muy sutil)
-        for dy in range(-size//2 - 3, size//2 + 3):
-            for dx in range(-size//2 - 3, size//2 + 3):
+        # Dibujar célula más circular usando círculos concéntricos
+        
+        # Capa exterior - sombra muy sutil
+        for dy in range(-7, 8):
+            for dx in range(-7, 8):
                 dist = (dx**2 + dy**2) ** 0.5
-                if dist <= size/2 + 2:
-                    alpha = max(0, 40 - int(dist * 12))
+                if dist <= 7:
+                    alpha = max(0, 25 - int(dist * 4))
                     if 0 <= center+dx < 16 and 0 <= center+dy < 16:
-                        if dist > size/2:
-                            # Solo el borde más externo - gris muy oscuro
+                        if dist > 6:
                             data[center+dy][center+dx] = (*PALETTE["cell_shadow"][:3], alpha)
         
-        # Draw membrane (gris medio)
-        for dy in range(-size//2, size//2):
-            for dx in range(-size//2, size//2):
+        # Segundo círculo - gris oscuro
+        for dy in range(-6, 7):
+            for dx in range(-6, 7):
                 dist = (dx**2 + dy**2) ** 0.5
-                if dist <= size/2 and 0 <= center+dx < 16 and 0 <= center+dy < 16:
-                    if dist > size/2 - 2:
-                        data[center+dy][center+dx] = PALETTE["cell_mid"]
+                if dist <= 6:
+                    alpha = max(0, 60 - int(dist * 10))
+                    if 0 <= center+dx < 16 and 0 <= center+dy < 16:
+                        if dist > 5:
+                            data[center+dy][center+dx] = (*PALETTE["cell_shadow"][:3], alpha)
         
-        # Draw body (gris claro)
-        for dy in range(-size//2 + 1, size//2 - 1):
-            for dx in range(-size//2 + 1, size//2 - 1):
+        # Tercer círculo - gris medio
+        for dy in range(-5, 6):
+            for dx in range(-5, 6):
                 dist = (dx**2 + dy**2) ** 0.5
-                if dist <= size/2 - 2 and 0 <= center+dx < 16 and 0 <= center+dy < 16:
-                    data[center+dy][center+dx] = PALETTE["cell_light"]
+                if dist <= 5:
+                    alpha = max(0, 100 - int(dist * 15))
+                    if 0 <= center+dx < 16 and 0 <= center+dy < 16:
+                        if dist > 4:
+                            data[center+dy][center+dx] = (*PALETTE["cell_mid"][:3], alpha)
         
-        # Draw nucleus (único punto blanco - la "luz" dentro de la oscuridad)
-        nuc_size = 2
-        for dy in range(-nuc_size//2, nuc_size//2):
-            for dx in range(-nuc_size//2, nuc_size//2):
-                if 0 <= center+dx < 16 and 0 <= center+dy < 16:
-                    data[center+dy][center+dx] = PALETTE["nucleus"]
+        # Cuarto círculo - gris claro (cuerpo principal)
+        for dy in range(-4, 5):
+            for dx in range(-4, 5):
+                dist = (dx**2 + dy**2) ** 0.5
+                if dist <= 4:
+                    alpha = max(0, 140 - int(dist * 20))
+                    if 0 <= center+dx < 16 and 0 <= center+dy < 16:
+                        if dist > 3:
+                            data[center+dy][center+dx] = (*PALETTE["cell_light"][:3], alpha)
+        
+        # Quinto círculo - más claro
+        for dy in range(-3, 4):
+            for dx in range(-3, 4):
+                dist = (dx**2 + dy**2) ** 0.5
+                if dist <= 3:
+                    if 0 <= center+dx < 16 and 0 <= center+dy < 16:
+                        if dist > 2:
+                            data[center+dy][center+dx] = PALETTE["cell_light"]
+        
+        # Núcleo - punto de luz blanco
+        for dy in range(-2, 2):
+            for dx in range(-2, 2):
+                dist = (dx**2 + dy**2) ** 0.5
+                if dist <= 1.5:
+                    if 0 <= center+dx < 16 and 0 <= center+dy < 16:
+                        data[center+dy][center+dx] = PALETTE["nucleus"]
         
         frames.append(data)
         save_sprite(data, f"cell_idle_{i+1:02d}.png")
@@ -108,25 +134,25 @@ def generate_cell_idle():
     return frames
 
 def generate_cell_appear():
-    """6-frame appear animation (grow from nothing)"""
-    sizes = [2, 4, 8, 10, 12, 14]  # Más sutil
+    """6-frame appear animation - circular cell appearing"""
+    sizes = [2, 4, 6, 8, 10, 12]
     
     for i, size in enumerate(sizes):
         data = [["transparent" for _ in range(16)] for _ in range(16)]
         center = 8
         
-        # Scaled-down cell - grayscale
-        scale = size / 16
+        scale = size / 16.0
         for dy in range(-7, 8):
             for dx in range(-7, 8):
-                scaled_dx = int(dx * scale)
-                scaled_dy = int(dy * scale)
-                if abs(scaled_dx) < 8 and abs(scaled_dy) < 8 and 0 <= center+dx < 16 and 0 <= center+dy < 16:
-                    dist = (scaled_dx**2 + scaled_dy**2) ** 0.5
-                    if dist < 7:
-                        if dist < 2:
+                dist = (dx**2 + dy**2) ** 0.5
+                if dist <= 7 and 0 <= center+dx < 16 and 0 <= center+dy < 16:
+                    scaled_dist = dist * (12.0 / max(size, 1))
+                    if scaled_dist < 7:
+                        if scaled_dist < 1.5:
                             data[center+dy][center+dx] = PALETTE["nucleus"]
-                        elif dist < 4:
+                        elif scaled_dist < 3:
+                            data[center+dy][center+dx] = PALETTE["cell_bright"]
+                        elif scaled_dist < 5:
                             data[center+dy][center+dx] = PALETTE["cell_light"]
                         else:
                             data[center+dy][center+dx] = PALETTE["cell_mid"]

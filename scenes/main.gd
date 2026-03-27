@@ -28,6 +28,7 @@ var current_hint = 0
 var interaction_count = 0
 
 func _ready():
+	_setup_reverb()
 	label.modulate.a = 0.0
 	cell.modulate.a = 0.0
 	
@@ -38,6 +39,17 @@ func _ready():
 	await get_tree().create_timer(3.0).timeout
 	phase = "dialogue"
 	_start_dialogue()
+
+func _setup_reverb():
+	var reverb = AudioEffectReverb.new()
+	reverb.pre_delay = 0.2
+	reverb.wet = 0.4
+	reverb.damping = 0.6
+	reverb.filter_cutoff = 400
+	
+	var bus_idx = AudioServer.get_bus_index("Master")
+	AudioServer.add_bus_effect(bus_idx, reverb, 0)
+	AudioServer.set_bus_volume_db(bus_idx, -3.0)
 
 func _process(delta):
 	if phase == "cell" or phase == "dialogue":
@@ -68,7 +80,7 @@ func _start_dialogue():
 	for line in dialogue_data:
 		_play_voice(line["voice"])
 		_show_line(line["text"])
-		await get_tree().create_timer(3.5).timeout
+		await get_tree().create_timer(4.0).timeout
 		_hide_line()
 		await get_tree().create_timer(0.5).timeout
 	
@@ -82,7 +94,7 @@ func _start_dialogue():
 func _play_voice(path: String):
 	if ResourceLoader.exists(path):
 		voice_player.stream = load(path)
-		voice_player.volume_db = -3.0
+		voice_player.volume_db = -5.0
 		voice_player.play()
 
 func _show_line(text: String):
@@ -109,7 +121,7 @@ func _beat():
 	ripple_count += 1
 	
 	var ring = ColorRect.new()
-	ring.color = Color(0.6, 0.65, 0.7, 0.4)
+	ring.color = Color(0.5, 0.55, 0.6, 0.35)
 	ring.offset_left = -3
 	ring.offset_top = -3
 	ring.offset_right = 3
@@ -119,7 +131,7 @@ func _beat():
 	ripple_container.add_child(ring)
 	
 	var ring_outer = ColorRect.new()
-	ring_outer.color = Color(0.4, 0.45, 0.5, 0.2)
+	ring_outer.color = Color(0.3, 0.35, 0.4, 0.15)
 	ring_outer.offset_left = -2
 	ring_outer.offset_top = -2
 	ring_outer.offset_right = 2
@@ -147,7 +159,7 @@ func _on_player_interaction():
 	interaction_count += 1
 	
 	var pulse = ColorRect.new()
-	pulse.color = Color(0.8, 0.85, 0.9, 0.5)
+	pulse.color = Color(0.7, 0.75, 0.8, 0.4)
 	pulse.offset_left = -5
 	pulse.offset_top = -5
 	pulse.offset_right = 5
@@ -178,10 +190,11 @@ func _show_temp_text(text: String, duration: float):
 	tween.tween_property(label, "modulate:a", 0.0, 0.5)
 
 func _play_heartbeat_sound():
-	var lub = _make_tone(55, 0.1, 0.2)
+	# Sonidos graves (40-50Hz) para sensación de sumergido
+	var lub = _make_tone(40, 0.15, 0.2)
 	lub.play()
-	await get_tree().create_timer(0.12).timeout
-	var dub = _make_tone(70, 0.08, 0.12)
+	await get_tree().create_timer(0.15).timeout
+	var dub = _make_tone(50, 0.12, 0.15)
 	dub.play()
 
 func _make_tone(freq: float, duration: float, volume: float) -> AudioStreamPlayer:

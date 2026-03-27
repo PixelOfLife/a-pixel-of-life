@@ -27,8 +27,8 @@ voice_lines = {
 async def generate_all():
     for name, text in voice_lines.items():
         filepath = os.path.join(OUTPUT_DIR, f"{name}.mp3")
-        # Rate -20% for slower, calmer delivery, pitch -10Hz for warmer tone
-        communicate = edge_tts.Communicate(text, VOICE, rate="-20%", pitch="-10Hz")
+        # Rate -30% for VERY slow (submerged), pitch -20Hz for MUCH deeper (underwater)
+        communicate = edge_tts.Communicate(text, VOICE, rate="-30%", pitch="-20Hz")
         await communicate.save(filepath)
         print(f"Generated: {filepath}")
     print(f"\nTotal: {len(voice_lines)} files with voice {VOICE}")
