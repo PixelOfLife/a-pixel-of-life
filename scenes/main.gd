@@ -92,7 +92,7 @@ func _start_dialogue():
 func _play_voice(path: String):
 	if ResourceLoader.exists(path):
 		voice_player.stream = load(path)
-		voice_player.volume_db = -5.0
+		voice_player.volume_db = -8.0  # Más bajo
 		voice_player.play()
 
 func _show_line(text: String):
@@ -194,7 +194,7 @@ func _on_player_interaction():
 	# Reproducir voz de respuesta
 	if voice_file and ResourceLoader.exists(voice_file):
 		voice_player.stream = load(voice_file)
-		voice_player.volume_db = -6.0
+		voice_player.volume_db = -8.0  # Más bajo y suave
 		voice_player.play()
 
 func _show_temp_text(text: String, duration: float):
@@ -207,10 +207,11 @@ func _show_temp_text(text: String, duration: float):
 
 func _play_heartbeat_sound():
 	# Sonidos graves (40-50Hz) para sensación de sumergido
-	var lub = _make_tone(40, 0.15, 0.2)
+	# Volumen más alto para que se sienta el latido
+	var lub = _make_tone(40, 0.15, 0.6)
 	lub.play()
 	await get_tree().create_timer(0.15).timeout
-	var dub = _make_tone(50, 0.12, 0.15)
+	var dub = _make_tone(50, 0.12, 0.5)
 	dub.play()
 
 func _make_tone(freq: float, duration: float, volume: float) -> AudioStreamPlayer:
