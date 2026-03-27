@@ -2,7 +2,7 @@ import asyncio
 import edge_tts
 import os
 
-VOICE = "es-ES-ElviraNeural"
+VOICE = "es-MX-DaliaNeural"
 OUTPUT_DIR = "assets/audio/voice"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 

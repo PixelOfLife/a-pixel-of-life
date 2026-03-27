@@ -156,6 +156,7 @@ func _beat():
 func _on_player_interaction():
 	interaction_count += 1
 	
+	# Feedback visual: pulso
 	var pulse = ColorRect.new()
 	pulse.color = Color(0.7, 0.75, 0.8, 0.4)
 	pulse.offset_left = -5
@@ -172,12 +173,29 @@ func _on_player_interaction():
 	tween.tween_property(pulse, "modulate:a", 0.0, 1.5)
 	tween.finished.connect(pulse.queue_free)
 	
+	# Feedback de voz: reproducir mensaje según interacción
+	var voice_file = ""
 	if interaction_count == 1:
 		_show_temp_text("sientes...", 2.0)
-	elif interaction_count == 3:
+		voice_file = "res://assets/audio/voice/hint_01.mp3"
+	elif interaction_count == 2:
 		_show_temp_text("bien...", 2.0)
-	elif interaction_count == 5:
+		voice_file = "res://assets/audio/voice/hint_02.mp3"
+	elif interaction_count == 3:
 		_show_temp_text("sigue...", 2.0)
+		voice_file = "res://assets/audio/voice/hint_03.mp3"
+	elif interaction_count == 4:
+		_show_temp_text("escucha...", 2.0)
+		voice_file = "res://assets/audio/voice/hint_04.mp3"
+	else:
+		_show_temp_text("estás...", 2.0)
+		voice_file = "res://assets/audio/voice/calm_01.mp3"
+	
+	# Reproducir voz de respuesta
+	if voice_file and ResourceLoader.exists(voice_file):
+		voice_player.stream = load(voice_file)
+		voice_player.volume_db = -6.0
+		voice_player.play()
 
 func _show_temp_text(text: String, duration: float):
 	label.text = text
